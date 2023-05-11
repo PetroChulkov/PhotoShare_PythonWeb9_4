@@ -9,7 +9,20 @@ packages = [{include = "photoshare_pythonweb9_4"}]
 [tool.poetry.dependencies]
 python = "^3.10"
 sqlalchemy = "^2.0.13"
+fastapi = "^0.95.1"
+uvicorn = {extras = ["standard"], version = "^0.22.0"}
+psycopg2 = "^2.9.6"
+psycopg2-binary = "^2.9.6"
+alembic = "^1.10.4"
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+python-multipart = "^0.0.6"
+python-dotenv = "^1.0.0"
+cloudinary = "^1.32.0"
 
+
+[tool.poetry.group.test.dependencies]
+httpx = "^0.24.0"
 
 [build-system]
 requires = ["poetry-core"]
