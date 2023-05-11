@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "photoshare-pythonweb9-4"
+version = "0.1.0"
+description = ""
+authors = ["PetroChulkov <114095841+PetroChulkov@users.noreply.github.com>"]
+readme = "README.md"
+packages = [{include = "photoshare_pythonweb9_4"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+sqlalchemy = "^2.0.13"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
