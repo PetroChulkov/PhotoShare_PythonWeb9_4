@@ -30,7 +30,7 @@ class Photo(Base):
     id = Column(Integer, primary_key=True)
     description = Column(String(200))
     user_id = Column("user_id", ForeignKey("users.id", ondelete="CASCADE"))
-    user = relationship("User", backref="students", innerjoin=True)
+    user = relationship("User", backref="users", innerjoin=True)
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
 
