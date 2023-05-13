@@ -1,9 +1,8 @@
 import enum
 
 from sqlalchemy.types import Integer, String, DateTime, Date
-from sqlalchemy import Column, func, Enum, Boolean
-from sqlalchemy.orm import declarative_base
-
+from sqlalchemy import Column, func, Enum, Boolean, ForeignKey
+from sqlalchemy.orm import declarative_base, relationship
 
 Base = declarative_base()
 
@@ -23,3 +22,15 @@ class User(Base):
     refresh_token = Column(String(255), nullable=True)
     roles = Column("role", Enum(Role), default=Role.user)
     confirmed = Column(Boolean, default=False)
+
+
+
+class Photo(Base):
+    __tablename__ = "photos"
+    id = Column(Integer, primary_key=True)
+    description = Column(String(200))
+    user_id = Column("user_id", ForeignKey("users.id", ondelete="CASCADE"))
+    user = relationship("User", backref="users", innerjoin=True)
+    created_at = Column(DateTime, default=func.now())
+    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
+
