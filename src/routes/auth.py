@@ -10,8 +10,10 @@ from sqlalchemy.orm import Session
 
 from src.database.connect import get_db
 from src.schemas import UserModel, UserResponse, TokenModel
+
 from src.repository import users as repository_users
 from src.services.auth import auth_service
+
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 security = HTTPBearer()
@@ -21,6 +23,7 @@ security = HTTPBearer()
     "/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED
 )
 async def signup(body: UserModel, db: Session = Depends(get_db)):
+
     exist_contact = await repository_users.search_by_mail(body.email, db)
     if exist_contact:
         raise HTTPException(
