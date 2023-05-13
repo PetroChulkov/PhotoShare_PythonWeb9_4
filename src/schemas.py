@@ -9,15 +9,18 @@ class UserModel(BaseModel):
     password: str = Field()
 
 
-class UserResponse(BaseModel):
+class UserDb(BaseModel):
     id: int
     user_name: str
     email: str
-    avatar: str
-    roles: Role
 
     class Config:
         orm_mode = True
+
+
+class UserResponse(BaseModel):
+    contact: UserDb
+    detail: str = "User was created successfully"
 
 
 class TokenModel(BaseModel):
