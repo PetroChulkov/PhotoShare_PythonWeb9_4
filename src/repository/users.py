@@ -1,7 +1,10 @@
+from fastapi import Depends
+
 from sqlalchemy.orm import Session
 
 from src.database.models import User
 from src.schemas import UserModel
+from src.database.connect import get_db
 
 
 async def get_user_by_email(email: str, db: Session) -> User:
@@ -20,8 +23,13 @@ async def update_token(user: User, token: str | None, db: Session) -> None:
     user.refresh_token = token
     db.commit()
 
+
 async def confirmed_email(email: str, db: Session) -> None:
     user = await get_user_by_email(email, db)
     user.confirmed = True
     db.commit()
 
+
+async def search_by_mail(inquiry: str, db: Session = Depends(get_db)):
+    contacts = db.query(User).filter_by(email=inquiry).first()
+    return contacts
