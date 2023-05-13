@@ -21,6 +21,7 @@ python-dotenv = "^1.0.0"
 cloudinary = "^1.32.0"
 redis = "^4.5.5"
 fastapi-mail = "^1.2.8"
+fastapi-limiter = "^0.1.5"
 
 
 [tool.poetry.group.test.dependencies]

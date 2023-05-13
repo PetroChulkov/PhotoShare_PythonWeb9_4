@@ -33,3 +33,8 @@ async def confirmed_email(email: str, db: Session) -> None:
 async def search_by_mail(inquiry: str, db: Session = Depends(get_db)):
     contacts = db.query(User).filter_by(email=inquiry).first()
     return contacts
+
+
+def check_exist_mail(body: UserModel, db: Session = Depends(get_db)):
+    check_mail = db.query(User).filter_by(email=body.email).first()
+    return check_mail
