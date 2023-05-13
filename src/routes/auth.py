@@ -9,25 +9,26 @@ from fastapi.security import (
 from sqlalchemy.orm import Session
 
 from src.database.connect import get_db
-from src.schemas import ContactModel, ResponseContact, TokenModel
-from src.repository import contacts as repository_contacts
+from src.schemas import UserModel, UserResponse, TokenModel
+from src.repository import users as repository_user
 from src.services.auth import auth_service
+
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 security = HTTPBearer()
 
 
 @router.post(
-    "/signup", response_model=ResponseContact, status_code=status.HTTP_201_CREATED
+    "/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED
 )
-async def signup(body: ContactModel, db: Session = Depends(get_db)):
-    exist_contact = await repository_contacts.search_by_mail(body.email, db)
+async def signup(body: UserModel, db: Session = Depends(get_db)):
+    exist_contact = await repository_user.get_user_by_email(body.email, db)
     if exist_contact:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="Account already exists"
         )
     body.password = auth_service.get_password_hash(body.password)
-    contact = await repository_contacts.create_contact(body, db)
+    contact = await repository_user.create_user(body, db)
     return {"contact": contact, "detail": "User successfully created"}
 
 
@@ -35,7 +36,7 @@ async def signup(body: ContactModel, db: Session = Depends(get_db)):
 async def login(
     body: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
 ):
-    contact = await repository_contacts.search_by_mail(body.username, db)
+    contact = await repository_user.get_user_by_email(body.username, db)
     if contact is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email"
@@ -49,7 +50,7 @@ async def login(
         data={"sub": contact.email}, expires_delta=7200
     )
     refresh_token = await auth_service.create_refresh_token(data={"sub": contact.email})
-    await repository_contacts.update_token(contact, refresh_token, db)
+    await repository_user.update_token(contact, refresh_token, db)
     return {
         "access_token": access_token,
         "refresh_token": refresh_token,
@@ -64,16 +65,16 @@ async def refresh_token(
 ):
     token = credentials.credentials
     email = await auth_service.decode_refresh_token(token)
-    contact = await repository_contacts.search_by_mail(email, db)
+    contact = await repository_user.get_user_by_email(email, db)
     if contact.refresh_token != token:
-        await repository_contacts.update_token(contact, None, db)
+        await repository_user.update_token(contact, None, db)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token"
         )
 
     access_token = await auth_service.create_access_token(data={"sub": email})
     refresh_token = await auth_service.create_refresh_token(data={"sub": email})
-    await repository_contacts.update_token(contact, refresh_token, db)
+    await repository_user.update_token(contact, refresh_token, db)
     return {
         "access_token": access_token,
         "refresh_token": refresh_token,
