@@ -19,7 +19,7 @@ class UserDb(BaseModel):
 
 
 class UserResponse(BaseModel):
-    contact: UserDb
+    user: UserDb
     detail: str = "User was created successfully"
 
 
