@@ -33,3 +33,13 @@ class Photo(Base):
     user = relationship("User", backref="users", innerjoin=True)
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
+
+
+class Comment(Base):
+    __tablename__ = "comments"
+    id = Column(Integer, primary_key=True)
+    comment = Column(String(255), nullable=False)
+    photo_id = Column("photo_id", ForeignKey("photos.id", ondelete="CASCADE"))
+    photo = relationship("Photo", backref="photos", innerjoin=True)
+    created_at = Column(DateTime, default=func.now())
+    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
