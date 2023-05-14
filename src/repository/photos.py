@@ -27,4 +27,3 @@ async def remove_photo(photo_id: int, user: User, db: Session) -> Photo | None:
         db.delete(photo)
         db.commit()
     return photo
-
