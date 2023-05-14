@@ -28,6 +28,12 @@ async def signup(body: UserModel, db: Session = Depends(get_db)):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="Account already exists"
         )
+    check_username = repository_users.check_exist_username(body, db)
+    if check_username:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Such username already registered",
+        )
     body.password = auth_service.get_password_hash(body.password)
     user = await repository_users.create_user(body, db)
     return {"user": user, "detail": "User successfully created"}

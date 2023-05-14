@@ -7,6 +7,10 @@ from src.schemas import UserModel
 from src.database.connect import get_db
 
 
+async def get_user_by_username(username: str, db: Session) -> User:
+    return db.query(User).filter(User.username == username).first()
+
+
 async def get_user_by_email(email: str, db: Session) -> User:
     return db.query(User).filter(User.email == email).first()
 
@@ -38,3 +42,8 @@ async def search_by_mail(inquiry: str, db: Session = Depends(get_db)):
 def check_exist_mail(body: UserModel, db: Session = Depends(get_db)):
     check_mail = db.query(User).filter_by(email=body.email).first()
     return check_mail
+
+
+def check_exist_username(body: UserModel, db: Session = Depends(get_db)):
+    check_username = db.query(User).filter_by(user_name=body.user_name).first()
+    return check_username

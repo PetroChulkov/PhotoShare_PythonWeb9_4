@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, Field, EmailStr, FilePath
 
 from src.database.models import Role
 
@@ -21,6 +21,23 @@ class UserDb(BaseModel):
 class UserResponse(BaseModel):
     user: UserDb
     detail: str = "User was created successfully"
+
+
+class PhotoModel(BaseModel):
+    description: str
+
+
+class PhotoDb(BaseModel):
+    id: int
+    photo: str
+
+    class Config:
+        orm_mode = True
+
+
+class PhotoResponse(BaseModel):
+    photo: PhotoDb
+    detail: str = "Photo was created successfully"
 
 
 class TokenModel(BaseModel):
