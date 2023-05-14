@@ -3,7 +3,7 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from src.database.models import Photo, User
-from src.schemas import PhotoModel
+from src.schemas import PhotoModel, DescriptionUpdate
 from src.database.connect import get_db
 
 
@@ -25,5 +25,12 @@ async def remove_photo(photo_id: int, user: User, db: Session) -> Photo | None:
     photo = db.query(Photo).filter(Photo.id == photo_id, Photo.user_id == user.id).first()
     if photo:
         db.delete(photo)
+        db.commit()
+    return photo
+
+async def update_description(contact_id: int, body: DescriptionUpdate, user: User, db: Session) -> Photo | None:
+    photo = db.query(Photo).filter(Photo.id == contact_id, Photo.user_id == user.id).first()
+    if photo:
+        photo.description = body.description
         db.commit()
     return photo
