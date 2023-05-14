@@ -20,3 +20,10 @@ async def get_photo(
         photo_id: int, db: Session
 ) -> Photo:
     return db.query(Photo).filter(Photo.id == photo_id).first()
+
+async def remove_photo(photo_id: int, user: User, db: Session) -> Photo | None:
+    photo = db.query(Photo).filter(Photo.id == photo_id, Photo.user_id == user.id).first()
+    if photo:
+        db.delete(photo)
+        db.commit()
+    return photo
