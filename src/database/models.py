@@ -1,7 +1,7 @@
 import enum
 
 from sqlalchemy.types import Integer, String, DateTime, Date
-from sqlalchemy import Column, func, Enum, Boolean, ForeignKey
+from sqlalchemy import Column, func, Enum, Boolean, ForeignKey, Table
 from sqlalchemy.orm import declarative_base, relationship
 
 Base = declarative_base()
@@ -24,6 +24,15 @@ class User(Base):
     confirmed = Column(Boolean, default=False)
 
 
+photo_m2m_tag = Table(
+    "photos_m2m_tag",
+    Base.metadata,
+    Column("id", Integer, primary_key=True),
+    Column("photo_id", Integer, ForeignKey("photos.id", ondelete="CASCADE")),
+    Column("tag_id", Integer, ForeignKey("tags.id", ondelete="CASCADE")),
+)
+
+
 class Photo(Base):
     __tablename__ = "photos"
     id = Column(Integer, primary_key=True)
@@ -33,6 +42,13 @@ class Photo(Base):
     user = relationship("User", backref="users", innerjoin=True)
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
+    tags = relationship("Tag", secondary=photo_m2m_tag, backref="notes")
+
+
+class Tag(Base):
+    __tablename__ = "tags"
+    id = Column(Integer, primary_key=True)
+    tag_name = Column(String(255), nullable=False)
 
 
 class Comment(Base):
