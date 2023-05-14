@@ -30,6 +30,7 @@ class PhotoModel(BaseModel):
 class PhotoDb(BaseModel):
     id: int
     photo: str
+    description: str | None
 
     class Config:
         orm_mode = True

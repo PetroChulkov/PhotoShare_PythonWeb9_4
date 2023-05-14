@@ -2,7 +2,7 @@ from fastapi import Depends
 
 from sqlalchemy.orm import Session
 
-from src.database.models import Photo
+from src.database.models import Photo, User
 from src.schemas import PhotoModel
 from src.database.connect import get_db
 
@@ -15,3 +15,8 @@ async def upload_photo(
     db.commit()
     db.refresh(new_photo)
     return new_photo
+
+async def get_photo(
+        photo_id: int, db: Session
+) -> Photo:
+    return db.query(Photo).filter(Photo.id == photo_id).first()

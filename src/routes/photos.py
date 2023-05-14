@@ -70,3 +70,13 @@ async def add_photo(
 
     photo = await repository_photos.upload_photo(current_user.id, src_url, body, db)
     return {"photo": photo, "detail": "Photo has been upload successfully"}
+
+@router.get("/{photo_id}", response_model=PhotoDb)
+async def get_photo_by_id(photo_id: int, current_user: User = Depends(auth_service.get_current_user), db: Session = Depends(get_db)):
+    if current_user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED)
+    photo = await repository_photos.get_photo(photo_id, db)
+    if photo is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Photo not found")
+    return photo
