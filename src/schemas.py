@@ -17,6 +17,8 @@ class UserDb(BaseModel):
     class Config:
         orm_mode = True
 
+class DescriptionUpdate(BaseModel):
+    done: bool
 
 class UserResponse(BaseModel):
     user: UserDb
@@ -34,7 +36,6 @@ class PhotoDb(BaseModel):
 
     class Config:
         orm_mode = True
-
 
 class PhotoResponse(BaseModel):
     photo: PhotoDb
