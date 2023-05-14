@@ -71,6 +71,7 @@ async def add_photo(
     photo = await repository_photos.upload_photo(current_user.id, src_url, body, db)
     return {"photo": photo, "detail": "Photo has been upload successfully"}
 
+
 @router.get("/{photo_id}", response_model=PhotoDb)
 async def get_photo_by_id(
         photo_id: int,
@@ -83,6 +84,7 @@ async def get_photo_by_id(
     if photo is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Photo not found")
     return photo
+
 
 @router.delete("/{photo_id}", response_model=PhotoDb)
 async def remove_photo(
