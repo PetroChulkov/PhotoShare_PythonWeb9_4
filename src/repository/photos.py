@@ -1,16 +1,19 @@
-from fastapi import Depends
-
+from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from src.database.models import Photo, User
+from src.repository import tags as repository_tags
 from src.schemas import PhotoModel, DescriptionUpdate
 from src.database.connect import get_db
+from typing import List
 
 
 async def upload_photo(
-    user_id: int, src_url: str, description: str, db: Session
+    user_id: int, src_url: str, description: str, tags: List, db: Session
 ) -> Photo:
-    new_photo = Photo(photo=src_url, user_id=user_id, description=description)
+    if tags:
+        tag_list = await repository_tags.create_tags_for_photo(tags[0].split(","), db)
+    new_photo = Photo(photo=src_url, user_id=user_id, description=description, tags=tag_list)
     db.add(new_photo)
     db.commit()
     db.refresh(new_photo)
