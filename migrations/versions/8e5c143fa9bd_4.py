@@ -1,8 +1,8 @@
-"""Updated photo table
+"""4
 
-Revision ID: 7f28bd30740a
-Revises: 506bb600a6d9
-Create Date: 2023-05-14 17:11:24.969475
+Revision ID: 8e5c143fa9bd
+Revises: f49f705c2b74
+Create Date: 2023-05-15 19:29:48.361718
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '7f28bd30740a'
-down_revision = '506bb600a6d9'
+revision = '8e5c143fa9bd'
+down_revision = 'f49f705c2b74'
 branch_labels = None
 depends_on = None
 

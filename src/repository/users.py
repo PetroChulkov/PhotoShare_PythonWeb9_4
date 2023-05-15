@@ -15,8 +15,19 @@ async def get_user_by_email(email: str, db: Session) -> User:
     return db.query(User).filter(User.email == email).first()
 
 
+async def check_quantity_of_users(db: Session = Depends(get_db)) -> list:
+    users = db.query(User).all()
+    return users
+
+
 async def create_user(body: UserModel, db: Session) -> User:
-    new_user = User(**body.dict())
+    users_list = await check_quantity_of_users(db)
+    if len(users_list) == 0:
+        user_data = body.dict()
+        user_data["roles"] = "admin"
+        new_user = User(**user_data)
+    else:
+        new_user = User(**body.dict())
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
@@ -39,11 +50,23 @@ async def search_by_mail(inquiry: str, db: Session = Depends(get_db)):
     return contacts
 
 
-def check_exist_mail(body: UserModel, db: Session = Depends(get_db)):
+async def check_exist_mail(body: UserModel, db: Session = Depends(get_db)):
     check_mail = db.query(User).filter_by(email=body.email).first()
     return check_mail
 
 
-def check_exist_username(body: UserModel, db: Session = Depends(get_db)):
+async def check_exist_username(body: UserModel, db: Session = Depends(get_db)):
     check_username = db.query(User).filter_by(user_name=body.user_name).first()
     return check_username
+
+
+async def to_ban_user(body: UserModel, email: str, db: Session = Depends(get_db)):
+    user = db.query(User).filter_by(email=email).first()
+    user.ban_status = True
+    db.commit()
+    return user
+
+
+async def check_ban_status(username: str, db: Session = Depends(get_db)):
+    user = db.query(User).filter_by(email=username).first()
+    return user.ban_status
