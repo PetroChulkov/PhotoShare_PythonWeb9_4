@@ -1,11 +1,10 @@
-from fastapi import HTTPException, status
+from typing import List
+
 from sqlalchemy.orm import Session
 
-from src.database.models import Photo, User
+from src.database.models import Photo, User, Role
 from src.repository import tags as repository_tags
 from src.schemas import PhotoModel, DescriptionUpdate
-from src.database.connect import get_db
-from typing import List
 
 
 async def upload_photo(
@@ -19,20 +18,29 @@ async def upload_photo(
     db.refresh(new_photo)
     return new_photo
 
+
 async def get_photo(
         photo_id: int, db: Session
 ) -> Photo:
     return db.query(Photo).filter(Photo.id == photo_id).first()
 
+
 async def remove_photo(photo_id: int, user: User, db: Session) -> Photo | None:
-    photo = db.query(Photo).filter(Photo.id == photo_id, Photo.user_id == user.id).first()
+    if user.roles == Role.admin:
+        photo = db.query(Photo).filter(Photo.id == photo_id).first()
+    else:
+        photo = db.query(Photo).filter(Photo.id == photo_id, user.id == Photo.user_id).first()
     if photo:
         db.delete(photo)
         db.commit()
     return photo
 
-async def update_description(contact_id: int, body: DescriptionUpdate, user: User, db: Session) -> Photo | None:
-    photo = db.query(Photo).filter(Photo.id == contact_id, Photo.user_id == user.id).first()
+
+async def update_description(photo_id: int, body: DescriptionUpdate, user: User, db: Session) -> Photo | None:
+    if user.roles == Role.admin:
+        photo = db.query(Photo).filter(Photo.id == photo_id).first()
+    else:
+        photo = db.query(Photo).filter(Photo.id == photo_id, user.id == Photo.user_id).first()
     if photo:
         photo.description = body.description
         db.commit()

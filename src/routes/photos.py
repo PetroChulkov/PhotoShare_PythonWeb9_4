@@ -33,7 +33,8 @@ time_stamp = calendar.timegm(current_GMT)
 router = APIRouter(prefix="/photos", tags=["photos"])
 
 allowed_post_photo = RolesChecker([Role.admin, Role.moderator, Role.user])
-# allowed_create_users = RolesChecker([Role.admin, Role.moderator, Role.user])
+allowed_remove_photo = RolesChecker([Role.admin, Role.user])
+allowed_update_photo = RolesChecker([Role.admin, Role.user])
 
 
 @router.post(
@@ -87,7 +88,7 @@ async def get_photo_by_id(
     return photo
 
   
-@router.delete("/delete/{photo_id}", response_model=PhotoDb)
+@router.delete("/delete/{photo_id}", response_model=PhotoDb, dependencies=[Depends(allowed_remove_photo)])
 async def remove_photo(
         photo_id: int,
         db: Session = Depends(get_db),
@@ -97,7 +98,8 @@ async def remove_photo(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Photo not found")
     return photo
 
-@router.put("/update/{photo_id}", response_model=PhotoDb)
+
+@router.put("/update/{photo_id}", response_model=PhotoDb, dependencies=([Depends(allowed_update_photo)]))
 async def update_photo_description(
         body: PhotoModel,
         photo_id: int,
