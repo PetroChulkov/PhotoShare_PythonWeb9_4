@@ -22,6 +22,7 @@ class User(Base):
     refresh_token = Column(String(255), nullable=True)
     roles = Column("role", Enum(Role), default=Role.user)
     confirmed = Column(Boolean, default=False)
+    ban_status = Column(Boolean, default=False)
 
 
 photo_m2m_tag = Table(
@@ -56,6 +57,8 @@ class Comment(Base):
     id = Column(Integer, primary_key=True)
     comment = Column(String(255), nullable=False)
     photo_id = Column("photo_id", ForeignKey("photos.id", ondelete="CASCADE"))
+    user_id = Column("user_id", ForeignKey("users.id", ondelete="CASCADE"))
     photo = relationship("Photo", backref="photos", innerjoin=True)
+    user = relationship("User", backref="user_comment", innerjoin=True)
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())

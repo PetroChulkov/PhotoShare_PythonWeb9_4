@@ -28,7 +28,7 @@ async def signup(body: UserModel, db: Session = Depends(get_db)):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="Account already exists"
         )
-    check_username = repository_users.check_exist_username(body, db)
+    check_username = await repository_users.check_exist_username(body, db)
     if check_username:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -51,6 +51,11 @@ async def login(
     if not auth_service.verify_password(body.password, user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid password"
+        )
+    user_status = await repository_users.check_ban_status(body.username, db)
+    if user_status == True:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Your account is banned"
         )
     # Generate JWT
     access_token = await auth_service.create_access_token(
