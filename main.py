@@ -1,7 +1,7 @@
 import time
 
 import redis.asyncio as redis
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 from typing import List
 from fastapi import FastAPI, Depends, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -11,7 +11,7 @@ from sqlalchemy import text
 
 from src.database.connect import get_db
 from src.database.models import User
-from src.routes import auth, users, photos
+from src.routes import auth, users, photos, comments
 from src.schemas import UserDb
 
 app = FastAPI()
@@ -70,3 +70,5 @@ def info():
 app.include_router(auth.router, prefix="/api")
 app.include_router(users.router, prefix="/api")
 app.include_router(photos.router, prefix="/api")
+app.include_router(comments.router, prefix="/api")
+

@@ -1,3 +1,6 @@
+from datetime import datetime
+from typing import List
+
 from pydantic import BaseModel, Field, EmailStr, FilePath
 
 from src.database.models import Role
@@ -17,8 +20,10 @@ class UserDb(BaseModel):
     class Config:
         orm_mode = True
 
+
 class DescriptionUpdate(BaseModel):
     done: bool
+
 
 class UserResponse(BaseModel):
     user: UserDb
@@ -36,6 +41,7 @@ class PhotoDb(BaseModel):
 
     class Config:
         orm_mode = True
+
 
 class PhotoResponse(BaseModel):
     photo: PhotoDb
@@ -61,3 +67,15 @@ class ResetPasswordModel(BaseModel):
     reset_password_token: str
     password: str
     confirm_password: str
+
+
+class CommentModel(BaseModel):
+    id: int
+    comment: str = Field(max_length=100)
+
+
+class CommentResponse(CommentModel):
+    id: int
+
+    class Config:
+        orm_mode = True
