@@ -20,7 +20,7 @@ from sqlalchemy.orm import Session
 from src.database.connect import get_db
 from src.database.models import User, Role
 from src.schemas import PhotoModel, PhotoDb, PhotoResponse
-
+from typing import List
 # UpdateContactRoleModel
 from src.repository import photos as repository_photos
 from src.services.auth import auth_service
@@ -48,6 +48,7 @@ allowed_post_photo = RolesChecker([Role.admin, Role.moderator, Role.user])
 )
 async def add_photo(
     body: str = Form(default=None),
+    tags: List = Form(default=None),
     file: UploadFile = File(),
     db: Session = Depends(get_db),
     current_user: User = Depends(auth_service.get_current_user),
@@ -68,7 +69,7 @@ async def add_photo(
         f"photo_share_team4/{current_user.user_name}_{time_stamp}"
     ).build_url(width=250, height=250, crop="fill", version=r.get("version"))
 
-    photo = await repository_photos.upload_photo(current_user.id, src_url, body, db)
+    photo = await repository_photos.upload_photo(current_user.id, src_url, body, tags, db)
     return {"photo": photo, "detail": "Photo has been upload successfully"}
 
 

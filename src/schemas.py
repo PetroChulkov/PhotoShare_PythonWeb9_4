@@ -1,7 +1,14 @@
 from pydantic import BaseModel, Field, EmailStr, FilePath
-
+from typing import List
 from src.database.models import Role
 
+class TagModel(BaseModel):
+    tag_name: str = Field(max_length=50)
+
+class TagResponse(TagModel):
+    id: int
+    class Config:
+            orm_mode = True
 
 class UserModel(BaseModel):
     user_name: str = Field()
@@ -33,6 +40,7 @@ class PhotoDb(BaseModel):
     id: int
     photo: str
     description: str | None
+    tags: List[TagResponse]
 
     class Config:
         orm_mode = True
