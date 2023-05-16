@@ -23,6 +23,7 @@ class User(Base):
     roles = Column("role", Enum(Role), default=Role.user)
     confirmed = Column(Boolean, default=False)
     ban_status = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=func.now())
 
 
 photo_m2m_tag = Table(

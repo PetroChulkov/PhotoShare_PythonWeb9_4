@@ -16,7 +16,7 @@ from sqlalchemy.orm import Session
 
 from src.database.connect import get_db
 from src.database.models import User, Role
-from src.schemas import UserModel, UserResponse, UserDb
+from src.schemas import UserModel, UserResponse, UserDb, UserPublic
 
 # UpdateContactRoleModel
 from src.repository import users as repository_users
@@ -85,3 +85,16 @@ async def ban_user(email: str = Form(), db: Session = Depends(get_db)):
         )
     user = await repository_users.to_ban_user(user, email, db)
     return {"user": user, "detail": "User was banned"}
+
+@router.get("/profile/{searched_user}", response_model=UserPublic)
+async def get_user_profile(
+        searched_user: str,
+        current_user: User = Depends(auth_service.get_current_user),
+        db: Session = Depends(get_db)):
+    if current_user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED)
+    user = await repository_users.get_user_profile(searched_user, db)
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Photo not found")
+    return user
