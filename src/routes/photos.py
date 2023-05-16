@@ -1,9 +1,9 @@
 import calendar
 import time
+from typing import List
 
 import cloudinary
 import cloudinary.uploader
-from typing import List
 from fastapi import (
     APIRouter,
     Depends,
@@ -12,7 +12,7 @@ from fastapi import (
     Path,
     UploadFile,
     status,
-    Form,
+    Form, Query,
 )
 from fastapi_limiter.depends import RateLimiter
 from sqlalchemy.orm import Session
@@ -20,7 +20,6 @@ from sqlalchemy.orm import Session
 from src.database.connect import get_db
 from src.database.models import User, Role
 from src.schemas import PhotoModel, PhotoDb, PhotoResponse
-from typing import List
 # UpdateContactRoleModel
 from src.repository import photos as repository_photos
 from src.services.auth import auth_service
@@ -35,6 +34,13 @@ router = APIRouter(prefix="/photos", tags=["photos"])
 allowed_post_photo = RolesChecker([Role.admin, Role.moderator, Role.user])
 allowed_remove_photo = RolesChecker([Role.admin, Role.user])
 allowed_update_photo = RolesChecker([Role.admin, Role.user])
+
+
+@router.get('/', response_model=List[PhotoResponse], dependencies=[Depends(RateLimiter(times=2, seconds=5))])
+async def get_photos(limit: int = Query(10, le=100), offset: int = 0,
+                       current_user: User = Depends(auth_service.get_current_user), db: Session = Depends(get_db)):
+    photos = await repository_photos.get_all_photos(limit, offset, db)
+    return photos
 
 
 @router.post(
