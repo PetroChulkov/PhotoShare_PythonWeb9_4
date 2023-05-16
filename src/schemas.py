@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field, EmailStr, FilePath
 from typing import List
 from src.database.models import Role
-
+from datetime import datetime, date
 class TagModel(BaseModel):
     tag_name: str = Field(max_length=50)
 
@@ -69,3 +69,10 @@ class ResetPasswordModel(BaseModel):
     reset_password_token: str
     password: str
     confirm_password: str
+
+class UserPublic(BaseModel):
+    user_name: str
+    created_at: date
+    photos_published: int
+    class Config:
+        orm_mode = True

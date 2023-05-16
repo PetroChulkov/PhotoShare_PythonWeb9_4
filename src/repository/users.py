@@ -2,8 +2,8 @@ from fastapi import Depends
 
 from sqlalchemy.orm import Session
 
-from src.database.models import User
-from src.schemas import UserModel
+from src.database.models import User, Photo
+from src.schemas import UserModel, UserPublic
 from src.database.connect import get_db
 
 
@@ -70,3 +70,14 @@ async def to_ban_user(body: UserModel, email: str, db: Session = Depends(get_db)
 async def check_ban_status(username: str, db: Session = Depends(get_db)):
     user = db.query(User).filter_by(email=username).first()
     return user.ban_status
+
+async def get_user_profile(username: str, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.user_name == username).first()
+    if user:
+        photos_amount = db.query(Photo).filter(Photo.user_id == user.id).count()
+        public_profile = UserPublic(
+            user_name=user.user_name,
+            photos_published=photos_amount,
+            created_at=user.created_at
+        )
+    return public_profile
