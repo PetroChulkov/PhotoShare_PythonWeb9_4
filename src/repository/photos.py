@@ -19,6 +19,11 @@ async def upload_photo(
     return new_photo
 
 
+async def get_all_photos(limit: int, offset: int, db: Session):
+    photos = db.query(Photo).limit(limit).offset(offset).all()
+    return photos
+
+
 async def get_photo(
         photo_id: int, db: Session
 ) -> Photo:
