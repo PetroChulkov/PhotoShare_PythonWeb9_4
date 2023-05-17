@@ -12,7 +12,8 @@ from fastapi import (
     Path,
     UploadFile,
     status,
-    Form, Query,
+    Form,
+    Query,
 )
 from fastapi_limiter.depends import RateLimiter
 from sqlalchemy.orm import Session
@@ -57,9 +58,17 @@ async def add_photo(
     body: str = Form(default=None),
     tags: List = Form(default=None),
     file: UploadFile = File(),
+    effects: str = Query(None, enum=["grayscale", "sepia", "vignette", "cartoonify", "blur", "art:athena",
+                                     "art:eucalyptus", "art:frost", "art:zorro", "art:sizzle"]),
+    round_image: str = Query(None, enum=["yes"]),
     db: Session = Depends(get_db),
     current_user: User = Depends(auth_service.get_current_user),
 ):
+    if round_image:
+        radius = 'max'
+    else:
+        radius = None
+
     cloudinary.config(
         cloud_name=settings.cloudinary_name,
         api_key=settings.cloudinary_api_key,
@@ -74,7 +83,8 @@ async def add_photo(
     )
     src_url = cloudinary.CloudinaryImage(
         f"photo_share_team4/{current_user.user_name}_{time_stamp}"
-    ).build_url(width=250, height=250, crop="fill", version=r.get("version"))
+    ).build_url(width=500, height=500, crop="fill",
+                effect=effects, radius=radius, fetch_format="auto", version=r.get("version"))
 
     photo = await repository_photos.upload_photo(current_user.id, src_url, body, tags, db)
     return {"photo": photo, "detail": "Photo has been upload successfully"}
