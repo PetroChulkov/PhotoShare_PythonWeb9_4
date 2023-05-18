@@ -126,3 +126,22 @@ async def update_photo_description(
     if photo is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Photo not found")
     return photo
+
+@router.post(
+    "/get_qr_code/{photo_id}",
+    response_model=PhotoDb,
+    name="Get QR code for photo")
+async def get_qr_code(
+        photo_id: int,
+        current_user: User = Depends(auth_service.get_current_user),
+        db: Session = Depends(get_db)):
+    if current_user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED)
+    photo = await repository_photos.get_photo(photo_id, db)
+    if photo is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Photo not found")
+    qr_code = await repository_photos.create_qr_code(photo_id, photo.photo, current_user, db)
+    return qr_code
+
+
