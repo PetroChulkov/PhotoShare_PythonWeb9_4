@@ -101,3 +101,18 @@ class CommentDb(BaseModel):
 class CommentResponseModel(CommentDb):
     comment: CommentDb
     detail: str = "Comment was edited successfully"
+
+
+class UserResponseProfile(BaseModel):
+    username: str
+    email: EmailStr
+    created_at: date
+    photos_published: int
+
+    class Config:
+        orm_mode = True
+
+
+class ChangePasswordRequest(BaseModel):
+    old_password: str
+    new_password: str

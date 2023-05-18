@@ -8,7 +8,7 @@ from src.database.connect import get_db
 
 
 async def get_user_by_username(username: str, db: Session) -> User:
-    return db.query(User).filter(User.username == username).first()
+    return db.query(User).filter(User.user_name == username).first()
 
 
 async def get_user_by_email(email: str, db: Session) -> User:
@@ -81,3 +81,15 @@ async def get_user_profile(username: str, db: Session = Depends(get_db)):
             created_at=user.created_at
         )
     return public_profile
+
+
+async def get_amount_photos(username: str, db: Session = Depends(get_db)):
+    user = await get_user_by_username(username=username, db=db)
+    if user:
+        photos_amount = db.query(Photo).filter(Photo.user_id == user.id).count()
+        return photos_amount
+
+
+async def change_password(user: User, new_password: str, db: Session = Depends(get_db)):
+    user.password = new_password
+    db.commit()
