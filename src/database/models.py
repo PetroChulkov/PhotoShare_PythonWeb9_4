@@ -39,6 +39,7 @@ class Photo(Base):
     __tablename__ = "photos"
     id = Column(Integer, primary_key=True)
     photo = Column(String(255), nullable=False)
+    qr_code = Column(String(255), nullable=True)
     description = Column(String(200), nullable=True)
     user_id = Column("user_id", ForeignKey("users.id", ondelete="CASCADE"))
     user = relationship("User", backref="users", innerjoin=True)

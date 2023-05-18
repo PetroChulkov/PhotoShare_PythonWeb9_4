@@ -1,10 +1,22 @@
 from typing import List
+import qrcode
+from qrcode.image.pure import PyPNGImage
+import cloudinary
+import cloudinary.uploader
+import time
+import calendar
+import io
 
 from sqlalchemy.orm import Session
 
 from src.database.models import Photo, User, Role
 from src.repository import tags as repository_tags
 from src.schemas import PhotoModel, DescriptionUpdate
+from src.conf.config import settings
+
+
+current_GMT = time.gmtime()
+time_stamp = calendar.timegm(current_GMT)
 
 
 async def upload_photo(
@@ -49,4 +61,31 @@ async def update_description(photo_id: int, body: DescriptionUpdate, user: User,
     if photo:
         photo.description = body.description
         db.commit()
+    return photo
+
+async def create_qr_code(photo_id: int, url: str, user: User, db: Session) -> Photo | None:
+    photo = db.query(Photo).filter(Photo.id == photo_id, user.id == Photo.user_id).first()
+    if photo:
+        code = qrcode.make(url, image_factory=PyPNGImage)
+        buffer = io.BytesIO()
+        code.save(buffer)
+        buffer.seek(0)
+
+    cloudinary.config(
+        cloud_name=settings.cloudinary_name,
+        api_key=settings.cloudinary_api_key,
+        api_secret=settings.cloudinary_secret,
+        secure=True,
+    )
+    r = cloudinary.uploader.upload(
+        buffer,
+        public_id=f"photo_share_team4/qrcode/{user.user_name}_{time_stamp}",
+        overwrite=True,
+    )
+    src_url = cloudinary.CloudinaryImage(
+        f"photo_share_team4/qrcode/{user.user_name}_{time_stamp}"
+    ).build_url(width=500, height=500, crop="fill", version=r.get("version"))
+
+    photo.qr_code = src_url
+    db.commit()
     return photo

@@ -41,6 +41,7 @@ class PhotoDb(BaseModel):
     photo: str
     description: str | None
     tags: List[TagResponse]
+    qr_code: str | None
 
     class Config:
         orm_mode = True
@@ -116,3 +117,5 @@ class UserResponseProfile(BaseModel):
 class ChangePasswordRequest(BaseModel):
     old_password: str
     new_password: str
+
+
