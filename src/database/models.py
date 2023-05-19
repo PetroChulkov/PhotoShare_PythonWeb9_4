@@ -1,7 +1,7 @@
 import enum
 
 from sqlalchemy.dialects.postgresql import ARRAY
-from sqlalchemy.types import Integer, String, DateTime, Date
+from sqlalchemy.types import Integer, String, DateTime
 from sqlalchemy import Column, func, Enum, Boolean, ForeignKey, Table, Float
 from sqlalchemy.orm import declarative_base, relationship
 
@@ -50,6 +50,7 @@ class Photo(Base):
     tags = relationship("Tag", secondary=photo_m2m_tag, backref="notes")
     ratings = relationship("PhotoRating", back_populates="photo")
     average_rating = Column(Float, default=0.0)
+    rated_by = Column(ARRAY(Integer), default=[])
 
 
 class Tag(Base):
@@ -76,6 +77,5 @@ class PhotoRating(Base):
     photo_id = Column(Integer, ForeignKey("photos.id", ondelete="CASCADE"))
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
     rating = Column(Integer)
-    rated_by = Column(ARRAY(Integer), default=[])
     photo = relationship("Photo", back_populates="ratings")
     user = relationship("User", back_populates="photo_ratings")

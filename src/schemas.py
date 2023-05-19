@@ -119,8 +119,24 @@ class ChangePasswordRequest(BaseModel):
     new_password: str
 
 
-class PhotoRating(BaseModel):
+class PhotoRatingModel(BaseModel):
     photo_id: int
     user_id: int
     rate: int = Field(ge=1, le=5)
 
+
+class PhotoRatingResponseModel(BaseModel):
+    photo_id: int
+    user_id: int
+    rate: int
+    
+    class Config:
+        orm_mode = True
+
+
+class AvgPhotoRatingResponse(BaseModel):
+    photo_id: int
+    avg_rating: float
+
+    class Config:
+        orm_mode = True

@@ -63,6 +63,7 @@ async def update_description(photo_id: int, body: DescriptionUpdate, user: User,
         db.commit()
     return photo
 
+
 async def create_qr_code(photo_id: int, url: str, user: User, db: Session) -> Photo | None:
     photo = db.query(Photo).filter(Photo.id == photo_id, user.id == Photo.user_id).first()
     if photo:

@@ -9,7 +9,6 @@ from fastapi import (
     Depends,
     File,
     HTTPException,
-    Path,
     UploadFile,
     status,
     Form,
@@ -20,9 +19,10 @@ from sqlalchemy.orm import Session
 
 from src.database.connect import get_db
 from src.database.models import User, Role
-from src.schemas import PhotoModel, PhotoDb, PhotoResponse, PhotoRating
-# UpdateContactRoleModel
+from src.schemas import PhotoModel, PhotoDb, PhotoResponse, AvgPhotoRatingResponse, PhotoRatingModel, \
+    PhotoRatingResponseModel
 from src.repository import photos as repository_photos
+from src.repository import rating as repository_rating
 from src.services.auth import auth_service
 from src.services.roles import RolesChecker
 from src.conf.config import settings
@@ -35,6 +35,7 @@ router = APIRouter(prefix="/photos", tags=["photos"])
 allowed_post_photo = RolesChecker([Role.admin, Role.moderator, Role.user])
 allowed_remove_photo = RolesChecker([Role.admin, Role.user])
 allowed_update_photo = RolesChecker([Role.admin, Role.user])
+allowed_remove_rating = RolesChecker([Role.admin, Role.moderator])
 
 
 @router.get('/', response_model=List[PhotoResponse], dependencies=[Depends(RateLimiter(times=2, seconds=5))])
@@ -104,7 +105,7 @@ async def get_photo_by_id(
     return photo
 
 
-@router.delete("/delete/{photo_id}", response_model=PhotoDb, dependencies=[Depends(allowed_remove_photo)])
+@router.delete("/{photo_id}", response_model=PhotoDb, dependencies=[Depends(allowed_remove_photo)])
 async def remove_photo(
         photo_id: int,
         db: Session = Depends(get_db),
@@ -115,7 +116,7 @@ async def remove_photo(
     return photo
 
 
-@router.put("/update/{photo_id}", response_model=PhotoDb, dependencies=([Depends(allowed_update_photo)]))
+@router.put("/{photo_id}", response_model=PhotoDb, dependencies=([Depends(allowed_update_photo)]))
 async def update_photo_description(
         body: PhotoModel,
         photo_id: int,
@@ -145,7 +146,41 @@ async def get_qr_code(
     return qr_code
 
 
-@router.post("/rating")
-async def rate_photo(photo_rating: PhotoRating, current_user: User = Depends(auth_service.get_current_user),
+@router.post("/rating", status_code=status.HTTP_201_CREATED)
+async def rate_photo(photo_rating: PhotoRatingModel, current_user: User = Depends(auth_service.get_current_user),
                      db: Session = Depends(get_db)):
-    
+    photo = await repository_photos.get_photo(photo_rating.photo_id, db)
+    if photo.user_id == current_user.id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You cannot rate your own photo")
+    if current_user.id in photo.rated_by:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You have already rated this photo")
+    await repository_rating.create_rating(photo, photo_rating, db)
+    return {"message": "Photo rated successfully"}
+
+
+@router.get("/{photo_id}/rating", response_model=AvgPhotoRatingResponse)
+async def get_avg_rating(photo_id: int, current_user: User = Depends(auth_service.get_current_user),
+                         db: Session = Depends(get_db)):
+    photo = await repository_photos.get_photo(photo_id, db)
+    if not photo:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Photo not found")
+    avg_rating = AvgPhotoRatingResponse(photo_id=photo.id, avg_rating=photo.average_rating)
+    return avg_rating
+
+
+@router.get("/rating", response_model=List[PhotoRatingResponseModel],
+            dependencies=([Depends(allowed_remove_rating)]))
+async def get_rating(limit: int = Query(10, le=100), offset: int = 0,
+                     current_user: User = Depends(auth_service.get_current_user), db: Session = Depends(get_db)):
+    ratings = await repository_rating.get_rating(limit=limit, offset=offset, db=db)
+    return ratings
+
+
+@router.delete("/rating/{rating_id}", response_model=PhotoRatingResponseModel,
+               dependencies=([Depends(allowed_remove_rating)]))
+async def remove_rating(rating_id: int, current_user: User = Depends(auth_service.get_current_user),
+                        db: Session = Depends(get_db)):
+    rating = repository_rating.remove_rating(rating_id, db)
+    if not rating:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Photo rating not found")
+    return rating
