@@ -1,7 +1,8 @@
 import enum
 
+from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.types import Integer, String, DateTime, Date
-from sqlalchemy import Column, func, Enum, Boolean, ForeignKey, Table
+from sqlalchemy import Column, func, Enum, Boolean, ForeignKey, Table, Float
 from sqlalchemy.orm import declarative_base, relationship
 
 Base = declarative_base()
@@ -24,6 +25,7 @@ class User(Base):
     confirmed = Column(Boolean, default=False)
     ban_status = Column(Boolean, default=False)
     created_at = Column(DateTime, default=func.now())
+    photo_ratings = relationship("PhotoRating", back_populates="user")
 
 
 photo_m2m_tag = Table(
@@ -46,6 +48,8 @@ class Photo(Base):
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
     tags = relationship("Tag", secondary=photo_m2m_tag, backref="notes")
+    ratings = relationship("PhotoRating", back_populates="photo")
+    average_rating = Column(Float, default=0.0)
 
 
 class Tag(Base):
@@ -64,3 +68,14 @@ class Comment(Base):
     user = relationship("User", backref="user_comment", innerjoin=True)
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
+
+
+class PhotoRating(Base):
+    __tablename__ = "PhotoRating"
+    id = Column(Integer, primary_key=True)
+    photo_id = Column(Integer, ForeignKey("photos.id", ondelete="CASCADE"))
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
+    rating = Column(Integer)
+    rated_by = Column(ARRAY(Integer), default=[])
+    photo = relationship("Photo", back_populates="ratings")
+    user = relationship("User", back_populates="photo_ratings")

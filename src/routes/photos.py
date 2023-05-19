@@ -20,7 +20,7 @@ from sqlalchemy.orm import Session
 
 from src.database.connect import get_db
 from src.database.models import User, Role
-from src.schemas import PhotoModel, PhotoDb, PhotoResponse
+from src.schemas import PhotoModel, PhotoDb, PhotoResponse, PhotoRating
 # UpdateContactRoleModel
 from src.repository import photos as repository_photos
 from src.services.auth import auth_service
@@ -39,7 +39,7 @@ allowed_update_photo = RolesChecker([Role.admin, Role.user])
 
 @router.get('/', response_model=List[PhotoResponse], dependencies=[Depends(RateLimiter(times=2, seconds=5))])
 async def get_photos(limit: int = Query(10, le=100), offset: int = 0,
-                       current_user: User = Depends(auth_service.get_current_user), db: Session = Depends(get_db)):
+                     current_user: User = Depends(auth_service.get_current_user), db: Session = Depends(get_db)):
     photos = await repository_photos.get_all_photos(limit, offset, db)
     return photos
 
@@ -55,14 +55,14 @@ async def get_photos(limit: int = Query(10, le=100), offset: int = 0,
     ],
 )
 async def add_photo(
-    body: str = Form(default=None),
-    tags: List = Form(default=None),
-    file: UploadFile = File(),
-    effects: str = Query(None, enum=["grayscale", "sepia", "vignette", "cartoonify", "blur", "art:athena",
-                                     "art:eucalyptus", "art:frost", "art:zorro", "art:sizzle"]),
-    round_image: str = Query(None, enum=["yes"]),
-    db: Session = Depends(get_db),
-    current_user: User = Depends(auth_service.get_current_user),
+        body: str = Form(default=None),
+        tags: List = Form(default=None),
+        file: UploadFile = File(),
+        effects: str = Query(None, enum=["grayscale", "sepia", "vignette", "cartoonify", "blur", "art:athena",
+                                         "art:eucalyptus", "art:frost", "art:zorro", "art:sizzle"]),
+        round_image: str = Query(None, enum=["yes"]),
+        db: Session = Depends(get_db),
+        current_user: User = Depends(auth_service.get_current_user),
 ):
     if round_image:
         radius = 'max'
@@ -103,7 +103,7 @@ async def get_photo_by_id(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Photo not found")
     return photo
 
-  
+
 @router.delete("/delete/{photo_id}", response_model=PhotoDb, dependencies=[Depends(allowed_remove_photo)])
 async def remove_photo(
         photo_id: int,
@@ -121,11 +121,11 @@ async def update_photo_description(
         photo_id: int,
         db: Session = Depends(get_db),
         current_user: User = Depends(auth_service.get_current_user)):
-
     photo = await repository_photos.update_description(photo_id, body, current_user, db)
     if photo is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Photo not found")
     return photo
+
 
 @router.post(
     "/get_qr_code/{photo_id}",
@@ -145,3 +145,7 @@ async def get_qr_code(
     return qr_code
 
 
+@router.post("/rating")
+async def rate_photo(photo_rating: PhotoRating, current_user: User = Depends(auth_service.get_current_user),
+                     db: Session = Depends(get_db)):
+    

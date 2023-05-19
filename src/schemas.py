@@ -119,3 +119,8 @@ class ChangePasswordRequest(BaseModel):
     new_password: str
 
 
+class PhotoRating(BaseModel):
+    photo_id: int
+    user_id: int
+    rate: int = Field(ge=1, le=5)
+
