@@ -71,6 +71,7 @@ async def check_ban_status(username: str, db: Session = Depends(get_db)):
     user = db.query(User).filter_by(email=username).first()
     return user.ban_status
 
+
 async def get_user_profile(username: str, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.user_name == username).first()
     if user:
@@ -78,7 +79,7 @@ async def get_user_profile(username: str, db: Session = Depends(get_db)):
         public_profile = UserPublic(
             user_name=user.user_name,
             photos_published=photos_amount,
-            created_at=user.created_at
+            created_at=user.created_at,
         )
     return public_profile
 
@@ -92,4 +93,10 @@ async def get_amount_photos(username: str, db: Session = Depends(get_db)):
 
 async def change_password(user: User, new_password: str, db: Session = Depends(get_db)):
     user.password = new_password
+    db.commit()
+
+
+async def confirmed_email(email: str, db: Session):
+    user = await search_by_mail(email, db)
+    user.confirmed = True
     db.commit()
