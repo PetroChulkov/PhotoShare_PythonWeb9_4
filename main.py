@@ -1,3 +1,4 @@
+import pathlib
 import time
 
 import redis.asyncio as redis
@@ -8,11 +9,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi_limiter import FastAPILimiter
 from sqlalchemy.orm import Session
 from sqlalchemy import text
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 
 from src.database.connect import get_db
 from src.database.models import User
 from src.routes import auth, users, photos, comments
 from src.schemas import UserDb
+
 
 app = FastAPI()
 
@@ -34,6 +39,15 @@ async def add_process_time_header(request: Request, call_next):
     process_time = time.time() - start_time
     response.headers["Process-Time"] = str(process_time)
     return response
+
+templates = Jinja2Templates(directory="templates")
+# BASE_DIR = pathlib.Path(__file__).parent
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+
+@app.get("/", response_class=HTMLResponse, description="Main Page")
+async def root(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request, "title": "PS4"})
 
 
 @app.on_event("startup")
