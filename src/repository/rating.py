@@ -1,15 +1,15 @@
 from sqlalchemy.orm import Session
 
-from src.database.models import PhotoRating, Photo
+from src.database.models import PhotoRating, Photo, User
 from src.schemas import PhotoRatingModel
 
 
-async def create_rating(photo: Photo, body: PhotoRatingModel, db: Session):
-    rating = PhotoRating(**body.dict())
+async def create_rating(photo: Photo, body: PhotoRatingModel, user: User, db: Session):
+    rating = PhotoRating(**body.dict(), user=user)
     db.add(rating)
     db.commit()
     db.refresh(rating)
-    photo.rated_by.append(body.user_id)
+    photo.rated_by.append(user.id)
     total_ratings = len(photo.ratings)
     total_rating_sum = sum([r.rating for r in photo.ratings])
     avg_rating = total_rating_sum / total_ratings if total_ratings > 0 else 0.0
@@ -31,5 +31,5 @@ async def remove_rating(rating_id: int, db: Session):
 
 
 async def get_rating(limit: int, offset: int, db: Session):
-    photos = db.query(PhotoRating).limit(limit).offset(offset).all()
-    return photos
+    ratings = db.query(PhotoRating).limit(limit).offset(offset).all()
+    return ratings

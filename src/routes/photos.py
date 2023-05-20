@@ -154,7 +154,7 @@ async def rate_photo(photo_rating: PhotoRatingModel, current_user: User = Depend
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You cannot rate your own photo")
     if current_user.id in photo.rated_by:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You have already rated this photo")
-    await repository_rating.create_rating(photo, photo_rating, db)
+    await repository_rating.create_rating(photo, photo_rating, current_user, db)
     return {"message": "Photo rated successfully"}
 
 
@@ -171,16 +171,18 @@ async def get_avg_rating(photo_id: int, current_user: User = Depends(auth_servic
 @router.get("/rating", response_model=List[PhotoRatingResponseModel],
             dependencies=([Depends(allowed_remove_rating)]))
 async def get_rating(limit: int = Query(10, le=100), offset: int = 0,
-                     current_user: User = Depends(auth_service.get_current_user), db: Session = Depends(get_db)):
+                     current_user: User = Depends(auth_service.get_current_user),
+                     db: Session = Depends(get_db)):
     ratings = await repository_rating.get_rating(limit=limit, offset=offset, db=db)
     return ratings
 
 
-@router.delete("/rating/{rating_id}", response_model=PhotoRatingResponseModel,
+@router.delete("/rating/{rating_id}", status_code=status.HTTP_204_NO_CONTENT,
                dependencies=([Depends(allowed_remove_rating)]))
-async def remove_rating(rating_id: int, current_user: User = Depends(auth_service.get_current_user),
+async def remove_rating(rating_id: int,
+                        current_user: User = Depends(auth_service.get_current_user),
                         db: Session = Depends(get_db)):
-    rating = repository_rating.remove_rating(rating_id, db)
+    rating = await repository_rating.remove_rating(rating_id, db)
     if not rating:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Photo rating not found")
     return rating
