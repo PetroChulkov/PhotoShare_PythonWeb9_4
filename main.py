@@ -18,11 +18,12 @@ from src.database.models import User
 from src.routes import auth, users, photos, comments
 from src.schemas import UserDb
 from src.conf.config import settings
+from utils.py_logger import get_logger
 
 
 app = FastAPI()
-
 origins = ["*"]
+logger = get_logger(__name__)
 
 app.add_middleware(
     CORSMiddleware,
@@ -86,7 +87,7 @@ def healthchecker(db: Session = Depends(get_db)):
             )
         return {"message": "Welcome to FastAPI!"}
     except Exception as e:
-        print(e)
+        logger.error(e)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Error connecting to the database",
