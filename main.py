@@ -15,7 +15,7 @@ from fastapi.templating import Jinja2Templates
 
 from src.database.connect import get_db
 from src.database.models import User
-from src.routes import auth, users, photos, comments
+from src.routes import auth, users, photos, comments, rating
 from src.schemas import UserDb
 from src.conf.config import settings
 from utils.py_logger import get_logger
@@ -103,3 +103,4 @@ app.include_router(auth.router, prefix="/api")
 app.include_router(users.router, prefix="/api")
 app.include_router(photos.router, prefix="/api")
 app.include_router(comments.router, prefix="/api")
+app.include_router(rating.router, prefix="/api")
