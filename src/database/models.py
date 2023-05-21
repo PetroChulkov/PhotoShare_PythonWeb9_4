@@ -1,8 +1,7 @@
 import enum
 
-from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.types import Integer, String, DateTime
-from sqlalchemy import Column, func, Enum, Boolean, ForeignKey, Table, Float
+from sqlalchemy import Column, func, Enum, Boolean, ForeignKey, Table, Float, ARRAY
 from sqlalchemy.orm import declarative_base, relationship
 
 Base = declarative_base()
@@ -72,7 +71,7 @@ class Comment(Base):
 
 
 class PhotoRating(Base):
-    __tablename__ = "PhotoRating"
+    __tablename__ = "photorating"
     id = Column(Integer, primary_key=True)
     photo_id = Column(Integer, ForeignKey("photos.id", ondelete="CASCADE"))
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
