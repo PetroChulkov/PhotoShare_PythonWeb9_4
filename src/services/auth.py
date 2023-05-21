@@ -19,7 +19,13 @@ class Auth:
     SECRET_KEY = settings.secret_key_jwt
     ALGORITHM = settings.algorithm
     oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
-    redis_db = redis.Redis(host="localhost", port=6379, db=0)
+    # redis_db = redis.Redis(host="localhost", port=6379, db=0)
+    redis_db = redis.Redis(
+        host=settings.redis_host,
+        port=settings.redis_port,
+        password=settings.redis_password,
+        db=0,
+    )
 
     def verify_password(self, plain_password, hashed_password):
         return self.pwd_context.verify(plain_password, hashed_password)
