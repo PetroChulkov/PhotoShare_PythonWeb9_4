@@ -1,14 +1,19 @@
-from pydantic import BaseModel, Field, EmailStr, FilePath
 from typing import List
-from src.database.models import Role
-from datetime import datetime, date
+from datetime import date
+
+from pydantic import BaseModel, Field, EmailStr, FilePath
+
+
 class TagModel(BaseModel):
     tag_name: str = Field(max_length=50)
 
+
 class TagResponse(TagModel):
     id: int
+
     class Config:
-            orm_mode = True
+        orm_mode = True
+
 
 class UserModel(BaseModel):
     user_name: str = Field()
@@ -24,8 +29,10 @@ class UserDb(BaseModel):
     class Config:
         orm_mode = True
 
+
 class DescriptionUpdate(BaseModel):
     done: bool
+
 
 class UserResponse(BaseModel):
     user: UserDb
@@ -45,6 +52,7 @@ class PhotoDb(BaseModel):
 
     class Config:
         orm_mode = True
+
 
 class PhotoResponse(BaseModel):
     photo: PhotoDb
@@ -117,5 +125,3 @@ class UserResponseProfile(BaseModel):
 class ChangePasswordRequest(BaseModel):
     old_password: str
     new_password: str
-
-

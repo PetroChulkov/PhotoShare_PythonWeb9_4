@@ -1,24 +1,19 @@
 import cloudinary
 import cloudinary.uploader
 from typing import List
-from fastapi import (
-    APIRouter,
-    Form,
-    Depends,
-    File,
-    HTTPException,
-    Path,
-    UploadFile,
-    status,
-)
+from fastapi import APIRouter, Form, Depends, HTTPException, status
 from fastapi_limiter.depends import RateLimiter
 from sqlalchemy.orm import Session
 
 from src.database.connect import get_db
 from src.database.models import User, Role
-from src.schemas import UserModel, UserResponse, UserDb, UserPublic, UserResponseProfile, ChangePasswordRequest
-
-# UpdateContactRoleModel
+from src.schemas import (
+    UserModel,
+    UserResponse,
+    UserPublic,
+    UserResponseProfile,
+    ChangePasswordRequest,
+)
 from src.repository import users as repository_users
 from src.services.auth import auth_service
 from src.services.roles import RolesChecker
@@ -29,16 +24,6 @@ router = APIRouter(prefix="/users", tags=["users"])
 allowed_get_users = RolesChecker([Role.admin, Role.moderator, Role.user])
 allowed_create_users = RolesChecker([Role.admin, Role.moderator, Role.user])
 allowed_ban_users = RolesChecker([Role.admin])
-
-
-# allowed_get_contact_by_id = RolesChecker([Role.admin, Role.moderator, Role.user])
-# allowed_update_contact = RolesChecker([Role.admin, Role.moderator])
-# allowed_change_contact_role = RolesChecker([Role.admin, Role.moderator])
-# allowed_delete_contact = RolesChecker([Role.admin])
-# allowed_search_first_name = RolesChecker([Role.admin, Role.moderator, Role.user])
-# allowed_search_last_name = RolesChecker([Role.admin, Role.moderator, Role.user])
-# allowed_search_email = RolesChecker([Role.admin, Role.moderator, Role.user])
-# allowed_search = RolesChecker([Role.admin, Role.moderator, Role.user])
 
 
 @router.post(
@@ -91,31 +76,43 @@ async def ban_user(email: str = Form(), db: Session = Depends(get_db)):
 
 @router.get("/profile/{searched_user}", response_model=UserPublic)
 async def get_user_profile(
-        searched_user: str,
-        current_user: User = Depends(auth_service.get_current_user),
-        db: Session = Depends(get_db)):
+    searched_user: str,
+    current_user: User = Depends(auth_service.get_current_user),
+    db: Session = Depends(get_db),
+):
     if current_user is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED)
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
     user = await repository_users.get_user_profile(searched_user, db)
     if user is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Photo not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Photo not found"
+        )
     return user
 
 
 @router.get("/me", response_model=UserResponseProfile)
-async def get_me(current_user: User = Depends(auth_service.get_current_user), db: Session = Depends(get_db)):
-    photos_published = await repository_users.get_amount_photos(current_user.user_name, db)
-    user_profile = UserResponseProfile(username=current_user.user_name, email=current_user.email,
-                                       created_at=current_user.created_at,
-                                       photos_published=photos_published)
+async def get_me(
+    current_user: User = Depends(auth_service.get_current_user),
+    db: Session = Depends(get_db),
+):
+    photos_published = await repository_users.get_amount_photos(
+        current_user.user_name, db
+    )
+    user_profile = UserResponseProfile(
+        username=current_user.user_name,
+        email=current_user.email,
+        created_at=current_user.created_at,
+        photos_published=photos_published,
+    )
     return user_profile
 
 
 @router.put("/me/change_password")
-async def change_password(request: ChangePasswordRequest,
-                          current_user: User = Depends(auth_service.get_current_user),
-                          db: Session = Depends(get_db)):
+async def change_password(
+    request: ChangePasswordRequest,
+    current_user: User = Depends(auth_service.get_current_user),
+    db: Session = Depends(get_db),
+):
     if not auth_service.verify_password(request.old_password, current_user.password):
         raise HTTPException(status_code=400, detail="Invalid old password")
     new_password = auth_service.get_password_hash(request.new_password)

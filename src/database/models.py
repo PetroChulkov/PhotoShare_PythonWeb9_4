@@ -1,6 +1,6 @@
 import enum
 
-from sqlalchemy.types import Integer, String, DateTime, Date
+from sqlalchemy.types import Integer, String, DateTime
 from sqlalchemy import Column, func, Enum, Boolean, ForeignKey, Table
 from sqlalchemy.orm import declarative_base, relationship
 
