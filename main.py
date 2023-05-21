@@ -17,11 +17,12 @@ from src.database.connect import get_db
 from src.database.models import User
 from src.routes import auth, users, photos, comments
 from src.schemas import UserDb
+from src.conf.config import settings
 
 
 app = FastAPI()
 
-origins = ["http://127.0.0.1:3000"]
+origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,
@@ -40,6 +41,7 @@ async def add_process_time_header(request: Request, call_next):
     response.headers["Process-Time"] = str(process_time)
     return response
 
+
 templates = Jinja2Templates(directory="templates")
 # BASE_DIR = pathlib.Path(__file__).parent
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -47,13 +49,28 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/", response_class=HTMLResponse, description="Main Page")
 async def root(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request, "title": "PS4"})
+    return templates.TemplateResponse(
+        "index.html", {"request": request, "title": "PS4"}
+    )
+
+
+# @app.on_event("startup")
+# async def startup():
+#     r = await redis.Redis(
+#         host="localhost", port=6379, db=0, encoding="utf-8", decode_responses=True
+#     )
+#     await FastAPILimiter.init(r)
 
 
 @app.on_event("startup")
 async def startup():
     r = await redis.Redis(
-        host="localhost", port=6379, db=0, encoding="utf-8", decode_responses=True
+        host=settings.redis_host,
+        port=settings.redis_port,
+        password=settings.redis_password,
+        db=0,
+        encoding="utf-8",
+        decode_responses=True,
     )
     await FastAPILimiter.init(r)
 
