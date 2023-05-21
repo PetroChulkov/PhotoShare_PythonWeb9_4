@@ -17,7 +17,6 @@ from fastapi.security import (
     HTTPBearer,
 )
 from fastapi_limiter.depends import RateLimiter
-
 from sqlalchemy.orm import Session
 
 from src.database.connect import get_db
@@ -29,7 +28,6 @@ from src.schemas import (
     RequestEmail,
     ResetPasswordModel,
 )
-
 from src.repository import users as repository_users
 from src.services.auth import auth_service
 from src.services.email import send_email, send_email_reset_password_token

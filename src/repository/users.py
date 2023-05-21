@@ -1,7 +1,6 @@
 from fastapi import Depends
 
 from sqlalchemy.orm import Session
-
 from src.database.models import User, Photo
 from src.schemas import UserModel, UserPublic
 from src.database.connect import get_db

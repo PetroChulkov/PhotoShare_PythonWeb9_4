@@ -1,17 +1,17 @@
-from typing import List
-import qrcode
-from qrcode.image.pure import PyPNGImage
-import cloudinary
-import cloudinary.uploader
 import time
 import calendar
 import io
+from typing import List
 
+import cloudinary
+import cloudinary.uploader
+import qrcode
 from sqlalchemy.orm import Session
+from qrcode.image.pure import PyPNGImage
 
 from src.database.models import Photo, User, Role
 from src.repository import tags as repository_tags
-from src.schemas import PhotoModel, DescriptionUpdate
+from src.schemas import DescriptionUpdate
 from src.conf.config import settings
 
 
@@ -24,7 +24,9 @@ async def upload_photo(
 ) -> Photo:
     if tags:
         tag_list = await repository_tags.create_tags_for_photo(tags[0].split(","), db)
-    new_photo = Photo(photo=src_url, user_id=user_id, description=description, tags=tag_list)
+    new_photo = Photo(
+        photo=src_url, user_id=user_id, description=description, tags=tag_list
+    )
     db.add(new_photo)
     db.commit()
     db.refresh(new_photo)
@@ -36,9 +38,7 @@ async def get_all_photos(limit: int, offset: int, db: Session):
     return photos
 
 
-async def get_photo(
-        photo_id: int, db: Session
-) -> Photo:
+async def get_photo(photo_id: int, db: Session) -> Photo:
     return db.query(Photo).filter(Photo.id == photo_id).first()
 
 
@@ -46,25 +46,40 @@ async def remove_photo(photo_id: int, user: User, db: Session) -> Photo | None:
     if user.roles == Role.admin:
         photo = db.query(Photo).filter(Photo.id == photo_id).first()
     else:
-        photo = db.query(Photo).filter(Photo.id == photo_id, user.id == Photo.user_id).first()
+        photo = (
+            db.query(Photo)
+            .filter(Photo.id == photo_id, user.id == Photo.user_id)
+            .first()
+        )
     if photo:
         db.delete(photo)
         db.commit()
     return photo
 
 
-async def update_description(photo_id: int, body: DescriptionUpdate, user: User, db: Session) -> Photo | None:
+async def update_description(
+    photo_id: int, body: DescriptionUpdate, user: User, db: Session
+) -> Photo | None:
     if user.roles == Role.admin:
         photo = db.query(Photo).filter(Photo.id == photo_id).first()
     else:
-        photo = db.query(Photo).filter(Photo.id == photo_id, user.id == Photo.user_id).first()
+        photo = (
+            db.query(Photo)
+            .filter(Photo.id == photo_id, user.id == Photo.user_id)
+            .first()
+        )
     if photo:
         photo.description = body.description
         db.commit()
     return photo
 
-async def create_qr_code(photo_id: int, url: str, user: User, db: Session) -> Photo | None:
-    photo = db.query(Photo).filter(Photo.id == photo_id, user.id == Photo.user_id).first()
+
+async def create_qr_code(
+    photo_id: int, url: str, user: User, db: Session
+) -> Photo | None:
+    photo = (
+        db.query(Photo).filter(Photo.id == photo_id, user.id == Photo.user_id).first()
+    )
     if photo:
         code = qrcode.make(url, image_factory=PyPNGImage)
         buffer = io.BytesIO()
