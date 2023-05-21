@@ -9,7 +9,7 @@ import qrcode
 from sqlalchemy.orm import Session
 from qrcode.image.pure import PyPNGImage
 
-from src.database.models import Photo, User, Role
+from src.database.models import Photo, User, Role, Tag
 from src.repository import tags as repository_tags
 from src.schemas import DescriptionUpdate
 from src.conf.config import settings
@@ -104,3 +104,22 @@ async def create_qr_code(
     photo.qr_code = src_url
     db.commit()
     return photo
+
+
+async def search_photo_by_keyword(search_by: str, filter_by: str, db: Session) -> List[Photo]:
+    if filter_by == "creation_date":
+            result = db.query(Photo).filter(Photo.description.like(search_by)).order_by(Photo.created_at).all()
+    elif filter_by == "rating":
+            result = db.query(Photo).filter(Photo.description.like(search_by)).order_by(Photo.average_rating).all()
+    else:
+        result = db.query(Photo).filter(Photo.description == search_by).all()
+    return result
+
+async def search_photo_by_tag(search_by: str, filter_by: str, db: Session) -> List[Photo]:
+    if filter_by == "creation_date":
+        result = db.query(Photo).join(Photo.tags).filter(Tag.tag_name == search_by).order_by(Photo.created_at).all()
+    elif filter_by == "rating":
+        result = db.query(Photo).join(Photo.tags).filter(Tag.tag_name == search_by).order_by(Photo.average_rating).all()
+    else:
+        result = db.query(Photo).join(Photo.tags).filter(Tag.tag_name == search_by).all()
+    return result

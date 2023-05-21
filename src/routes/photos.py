@@ -19,7 +19,7 @@ from sqlalchemy.orm import Session
 
 from src.database.connect import get_db
 from src.database.models import User, Role
-from src.schemas import PhotoModel, PhotoDb, PhotoResponse
+from src.schemas import PhotoModel, PhotoDb, PhotoResponse, PhotoSearch
 from src.repository import photos as repository_photos
 from src.services.auth import auth_service
 from src.services.roles import RolesChecker
@@ -190,3 +190,37 @@ async def get_qr_code(
         photo_id, photo.photo, current_user, db
     )
     return qr_code
+
+
+@router.get("/search_keyword/", name="Search photos by keyword", response_model=List[PhotoSearch])
+async def search_photo_by_keyword(
+    search_by: str,
+    filter_by: str = Query(None, enum=["rating", "created_at"]),
+    current_user: User = Depends(auth_service.get_current_user),
+    db: Session = Depends(get_db),
+):
+    if search_by:
+        photo = await repository_photos.search_photo_by_keyword(search_by, filter_by, db)
+    if photo is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Photo not found"
+        )
+    return photo
+
+@router.get("/search_tag/", name="Search photos by tag", response_model=List[PhotoSearch])
+async def search_photo_by_tag(
+    search_by: str,
+    filter_by: str = Query(None, enum=["rating", "created_at"]),
+    current_user: User = Depends(auth_service.get_current_user),
+    db: Session = Depends(get_db),
+):
+    if search_by:
+        photo = await repository_photos.search_photo_by_tag(
+
+
+            search_by, filter_by, db)
+    if photo is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Photo not found"
+        )
+    return photo

@@ -1,5 +1,6 @@
 from typing import List
 from datetime import date
+from datetime import datetime
 
 from pydantic import BaseModel, Field, EmailStr, FilePath
 
@@ -145,5 +146,16 @@ class AvgPhotoRatingResponse(BaseModel):
     photo_id: int
     avg_rating: float
 
+    class Config:
+        orm_mode = True
+
+class PhotoSearch(BaseModel):
+    id: int
+    photo: str
+    qr_code: str | None
+    description: str | None
+    created_at: datetime
+    tags: List[TagResponse]
+    average_rating: float
     class Config:
         orm_mode = True
