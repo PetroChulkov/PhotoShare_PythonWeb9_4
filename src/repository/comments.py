@@ -2,7 +2,7 @@ from typing import List
 
 from sqlalchemy.orm import Session
 
-from src.database.models import Comment, Photo
+from src.database.models import Comment
 from src.schemas import CommentModel, EditCommentModel
 
 

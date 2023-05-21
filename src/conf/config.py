@@ -13,7 +13,8 @@ class Settings(BaseSettings):
     mail_server: str = "server"
 
     redis_host: str = "localhost"
-    redis: int = 123456
+    redis_port: int = 123456
+    redis_password: str = "weewef"
 
     cloudinary_name: str = "name"
     cloudinary_api_key: int = 654321
