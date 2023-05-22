@@ -23,6 +23,8 @@ redis = "^4.5.5"
 fastapi-mail = "^1.2.8"
 fastapi-limiter = "^0.1.5"
 qrcode = "^7.4.2"
+pytest = "^7.3.1"
+psycopg2 = "^2.9.6"
 
 
 [tool.poetry.group.test.dependencies]
