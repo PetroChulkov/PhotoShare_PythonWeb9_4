@@ -19,7 +19,7 @@ from sqlalchemy.orm import Session
 
 from src.database.connect import get_db
 from src.database.models import User, Role
-from src.schemas import PhotoModel, PhotoDb, PhotoResponse, PhotoSearch
+from src.schemas.photos import PhotoModel, PhotoDb, PhotoResponse, PhotoSearch
 from src.repository import photos as repository_photos
 from src.services.auth import auth_service
 from src.services.roles import RolesChecker
@@ -135,7 +135,7 @@ async def get_photo_by_id(
 
 
 @router.delete(
-    "/delete/{photo_id}",
+    "/{photo_id}",
     response_model=PhotoDb,
     dependencies=[Depends(allowed_remove_photo)],
 )
@@ -153,7 +153,7 @@ async def remove_photo(
 
 
 @router.put(
-    "/update/{photo_id}",
+    "/{photo_id}",
     response_model=PhotoDb,
     dependencies=([Depends(allowed_update_photo)]),
 )
@@ -207,6 +207,7 @@ async def search_photo_by_keyword(
         )
     return photo
 
+
 @router.get("/search_tag/", name="Search photos by tag", response_model=List[PhotoSearch])
 async def search_photo_by_tag(
     search_by: str,
@@ -216,8 +217,6 @@ async def search_photo_by_tag(
 ):
     if search_by:
         photo = await repository_photos.search_photo_by_tag(
-
-
             search_by, filter_by, db)
     if photo is None:
         raise HTTPException(
