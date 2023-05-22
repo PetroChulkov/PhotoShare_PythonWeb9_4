@@ -42,6 +42,7 @@ async def confirmed_email(email: str, db: Session) -> None:
     user = await get_user_by_email(email, db)
     user.confirmed = True
     db.commit()
+    return user
 
 
 async def search_by_mail(inquiry: str, db: Session = Depends(get_db)):
@@ -93,9 +94,10 @@ async def get_amount_photos(username: str, db: Session = Depends(get_db)):
 async def change_password(user: User, new_password: str, db: Session = Depends(get_db)):
     user.password = new_password
     db.commit()
+    return user
 
 
-async def confirmed_email(email: str, db: Session):
-    user = await search_by_mail(email, db)
-    user.confirmed = True
-    db.commit()
+# async def confirmed_email(email: str, db: Session):
+#     user = await search_by_mail(email, db)
+#     user.confirmed = True
+#     db.commit()
