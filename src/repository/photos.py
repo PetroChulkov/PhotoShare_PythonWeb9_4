@@ -11,7 +11,7 @@ from qrcode.image.pure import PyPNGImage
 
 from src.database.models import Photo, User, Role, Tag
 from src.repository import tags as repository_tags
-from src.schemas import DescriptionUpdate
+from src.schemas.photos import DescriptionUpdate
 from src.conf.config import settings
 
 

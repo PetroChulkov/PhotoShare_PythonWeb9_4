@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
 from src.database.models import PhotoRating, Photo, User
-from src.schemas import PhotoRatingModel
+from src.schemas.rating import PhotoRatingModel
 from src.repository import photos as repository_photos
 
 

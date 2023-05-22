@@ -1,9 +1,7 @@
-from typing import List
-
 from sqlalchemy.orm import Session
 
 from src.database.models import Comment
-from src.schemas import CommentModel, EditCommentModel
+from src.schemas.comments import CommentModel, EditCommentModel
 
 
 async def create_comment(user_id: int, body: CommentModel, db: Session) -> Comment:

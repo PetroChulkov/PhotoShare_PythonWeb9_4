@@ -3,16 +3,15 @@ import sys
 
 sys.path.append(os.path.abspath("."))
 
-from datetime import datetime, date
+from datetime import datetime
 
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 from sqlalchemy.orm import Session
 
-import src
 from src.database.models import User
-from src.schemas import UserModel, UserPublic
+from src.old.schemas import UserModel, UserPublic
 from src.repository.users import (
     get_user_by_username,
     get_user_by_email,

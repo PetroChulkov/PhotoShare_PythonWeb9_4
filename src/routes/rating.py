@@ -13,13 +13,11 @@ from sqlalchemy.orm import Session
 
 from src.database.connect import get_db
 from src.database.models import User, Role
-from src.schemas import AvgPhotoRatingResponse, PhotoRatingModel, PhotoRatingResponseModel
+from src.schemas.rating import AvgPhotoRatingResponse, PhotoRatingModel, PhotoRatingResponseModel
 from src.repository import photos as repository_photos
 from src.repository import rating as repository_rating
 from src.services.auth import auth_service
 from src.services.roles import RolesChecker
-from src.conf.config import settings
-
 
 router = APIRouter(prefix="/rating", tags=["rating"])
 
