@@ -1,13 +1,10 @@
-import cloudinary
-import cloudinary.uploader
-from typing import List
 from fastapi import APIRouter, Form, Depends, HTTPException, status
 from fastapi_limiter.depends import RateLimiter
 from sqlalchemy.orm import Session
 
 from src.database.connect import get_db
 from src.database.models import User, Role
-from src.schemas import (
+from src.schemas.users import (
     UserModel,
     UserResponse,
     UserPublic,
@@ -17,7 +14,6 @@ from src.schemas import (
 from src.repository import users as repository_users
 from src.services.auth import auth_service
 from src.services.roles import RolesChecker
-from src.conf.config import settings
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -27,7 +23,7 @@ allowed_ban_users = RolesChecker([Role.admin])
 
 
 @router.post(
-    "/create",
+    "/",
     response_model=UserResponse,
     name="Create user",
     status_code=status.HTTP_201_CREATED,
@@ -55,7 +51,7 @@ async def create_user(body: UserModel, db: Session = Depends(get_db)):
 
 
 @router.patch(
-    "/ban_user/{user_id}",
+    "/{user_id}",
     name="Ban user",
     response_model=UserResponse,
     dependencies=[

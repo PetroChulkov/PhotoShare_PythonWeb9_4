@@ -1,6 +1,4 @@
 import uuid
-from typing import List
-
 
 from fastapi import (
     APIRouter,
@@ -20,10 +18,12 @@ from fastapi_limiter.depends import RateLimiter
 from sqlalchemy.orm import Session
 
 from src.database.connect import get_db
-from src.schemas import (
+from src.schemas.users import (
     UserModel,
     UserResponse,
     UserDb,
+)
+from src.schemas.auth import (
     TokenModel,
     RequestEmail,
     ResetPasswordModel,
@@ -165,7 +165,7 @@ async def forgot_password(
     db: Session = Depends(get_db),
 ):
     user = await repository_users.search_by_mail(email, db)
-    if bool(user) == False:
+    if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Not found or doesn't exist."
         )
@@ -198,7 +198,7 @@ async def reset_password(
     db: Session = Depends(get_db),
 ):
     user = await repository_users.search_by_mail(body.email, db)
-    if bool(user) == False:
+    if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Not found or doesn't exist."
         )

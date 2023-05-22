@@ -1,14 +1,10 @@
 import calendar
 import time
 
-import cloudinary
-import cloudinary.uploader
-from typing import List
 from fastapi import (
     APIRouter,
     Depends,
     HTTPException,
-    Path,
     status,
     Form,
 )
@@ -16,13 +12,12 @@ from fastapi_limiter.depends import RateLimiter
 from sqlalchemy.orm import Session
 from src.database.connect import get_db
 from src.database.models import User, Role
-from src.schemas import CommentModel, EditCommentModel, CommentDb
+from src.schemas.comments import CommentModel, EditCommentModel, CommentDb
 
 from src.repository import photos as repository_photos
 from src.repository import comments as repository_comments
 from src.services.auth import auth_service
 from src.services.roles import RolesChecker
-from src.conf.config import settings
 
 current_GMT = time.gmtime()
 time_stamp = calendar.timegm(current_GMT)
@@ -59,7 +54,7 @@ async def add_comment(
 
 
 @router.put(
-    "/update/{comment_id}",
+    "/{comment_id}",
     response_model=CommentDb,
     dependencies=([Depends(allowed_update_comment)]),
 )
@@ -84,7 +79,7 @@ async def edit_comment(
 
 
 @router.delete(
-    "/remove_comment/{comment_id}", dependencies=([Depends(allowed_remove_comment)])
+    "/{comment_id}", dependencies=([Depends(allowed_remove_comment)])
 )
 async def remove_comment_sw(
     body: int = Form(),
