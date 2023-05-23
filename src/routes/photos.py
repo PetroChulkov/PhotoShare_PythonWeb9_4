@@ -37,7 +37,7 @@ allowed_update_photo = RolesChecker([Role.admin, Role.user])
 
 @router.get(
     "/",
-    response_model=List[PhotoResponse],
+    response_model=List[PhotoDb],
     dependencies=[Depends(RateLimiter(times=2, seconds=5))],
 )
 async def get_photos(
