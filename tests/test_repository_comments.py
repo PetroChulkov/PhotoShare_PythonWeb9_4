@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import MagicMock
 from sqlalchemy.orm import Session
 from src.database.models import Comment, User
-from src.schemas import CommentDb, CommentModel, CommentResponseModel, EditCommentModel
+from src.schemas.comments import CommentDb, CommentModel, CommentResponseModel, EditCommentModel
 
 from src.repository.comments import (
     create_comment,

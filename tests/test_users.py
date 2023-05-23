@@ -11,7 +11,7 @@ from unittest.mock import MagicMock
 from sqlalchemy.orm import Session
 
 from src.database.models import User
-from src.old.schemas import UserModel, UserPublic
+from src.schemas.users import UserModel, UserPublic
 from src.repository.users import (
     get_user_by_username,
     get_user_by_email,
