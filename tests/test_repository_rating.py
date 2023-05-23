@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import MagicMock
 from sqlalchemy.orm import Session
 from src.database.models import PhotoRating, Photo, User
-from src.schemas.rating import *
+from src.schemas.rating import PhotoRatingModel
 
 from src.repository.rating import (
     create_rating,
@@ -53,3 +53,8 @@ class TestRating(unittest.IsolatedAsyncioTestCase):
         self.session.query(PhotoRating).filter_by().first.return_value = None
         result = await remove_rating(1, self.session)
         self.assertIsNone(result)
+
+    async def test_update_avg_photo_rating(self):
+        photo = Photo()
+        result = await update_avg_photo_rating(photo, self.session)
+        self.assertEqual(result, photo)
