@@ -7,6 +7,9 @@
 
 <h4 align="center">Simple to use application to share photos build using FastAPI Framework.</h4>
 
+<p align="center">
+    <a href="https://ps4.fly.dev/">Live Test</a>
+</p>
 
 ## Key Features
   
