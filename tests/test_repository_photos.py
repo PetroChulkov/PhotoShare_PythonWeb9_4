@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 from src.database.models import Photo, User, Role, Tag
 from src.repository import tags as repository_tags
-from src.schemas import DescriptionUpdate, PhotoDb, TagResponse, PhotoSearch
+from src.schemas.photos import DescriptionUpdate, PhotoDb, TagResponse, PhotoSearch
 
 from src.repository.photos import (
     get_all_photos,
