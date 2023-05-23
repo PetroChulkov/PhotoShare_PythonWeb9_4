@@ -16,7 +16,7 @@ from fastapi.templating import Jinja2Templates
 from src.database.connect import get_db
 from src.database.models import User
 from src.routes import auth, users, photos, comments, rating
-from src.schemas import UserDb
+from src.schemas.users import UserDb
 from src.conf.config import settings
 from utils.py_logger import get_logger
 

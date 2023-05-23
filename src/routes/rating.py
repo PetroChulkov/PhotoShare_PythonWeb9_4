@@ -31,7 +31,7 @@ async def get_rating(limit: int = Query(10, le=100), offset: int = 0, db: Sessio
     return ratings
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=PhotoRatingResponseModel, status_code=status.HTTP_201_CREATED)
 async def rate_photo(photo_rating: PhotoRatingModel, current_user: User = Depends(auth_service.get_current_user),
                      db: Session = Depends(get_db)):
     photo = await repository_photos.get_photo(photo_rating.photo_id, db)
@@ -39,8 +39,8 @@ async def rate_photo(photo_rating: PhotoRatingModel, current_user: User = Depend
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You cannot rate your own photo")
     if current_user.id in photo.rated_by:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You have already rated this photo")
-    await repository_rating.create_rating(photo, photo_rating, current_user, db)
-    return {"message": "Photo rated successfully"}
+    rating = await repository_rating.create_rating(photo, photo_rating, current_user, db)
+    return rating
 
 
 @router.get("/{photo_id}", response_model=AvgPhotoRatingResponse)
