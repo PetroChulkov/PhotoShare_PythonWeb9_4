@@ -13,6 +13,7 @@ async def create_rating(photo: Photo, body: PhotoRatingModel, user: User, db: Se
     photo = await update_avg_photo_rating(photo, db)
     photo.rated_by = photo.rated_by + [user.id]
     db.commit()
+    return rating
 
 
 async def update_avg_photo_rating(photo: Photo, db: Session):
